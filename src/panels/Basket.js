@@ -8,10 +8,20 @@ import edit from '../img/edit.svg';
 import './place.css';
 
 
-const Basket = ({ match: { params: { areaId, itemId }}, history, foodAreas, order }) => {
-  const [ faster, setFaster ] = useState(true);
-  const [ time, setTime ] = useState('');
-  const [ selfService, setSelfService ] = useState(false);
+const Basket = ({ match: { params: { areaId, itemId }}, history, foodAreas, order, orderOptions, onOptionsChange }) => {
+  const optionsExist = itemId in orderOptions;
+  const getInitialState = (field) => {
+    const localOrderOptions = orderOptions[itemId];
+    switch (field) {
+      case 'faster': return optionsExist && field in localOrderOptions ? localOrderOptions[field] : true;
+      case 'time': return optionsExist && field in localOrderOptions ? localOrderOptions[field] : '';
+      case 'selfService': return optionsExist && field in localOrderOptions ? localOrderOptions[field] : false;
+    }
+    return null;
+  }
+  const [ faster, setFaster ] = useState(getInitialState('faster'));
+  const [ time, setTime ] = useState(getInitialState('time'));
+  const [ selfService, setSelfService ] = useState(getInitialState('selfService'));
   const area = foodAreas.filter(area => area.id === areaId)[0];
   const item = area.items.filter(item => item.id === itemId)[0];
 
@@ -112,9 +122,12 @@ const Basket = ({ match: { params: { areaId, itemId }}, history, foodAreas, orde
             onToggle={() => {
               if (faster) {
                 setFaster(false);
+                onOptionsChange('faster', item.id, false);
               } else {
                 setTime('');
                 setFaster(true);
+                onOptionsChange('faster', item.id, true);
+                onOptionsChange('time', item.id, '');
               }
             }}
           />
@@ -126,25 +139,35 @@ const Basket = ({ match: { params: { areaId, itemId }}, history, foodAreas, orde
             value={time}
             onFocus={() => {
               setFaster(false);
+              onOptionsChange('faster', item.id, false);
             }}
             onChange={event => {
               setFaster(false);
               setTime(event.target.value);
+              onOptionsChange('faster', item.id, false);
+              onOptionsChange('time', item.id, event.target.value);
             }}
             onBlur={() => {
               if (time) {
                 setFaster(false);
+                onOptionsChange('faster', item.id, false);
               }
             }}
           />
         </div>
         <div className="Place__choice-item">
           <h3>С собой</h3>
-          <Checkbox checked={selfService} onToggle={() => setSelfService(!selfService)} />
+          <Checkbox checked={selfService} onToggle={() => {
+            setSelfService(!selfService)
+            onOptionsChange('selfService', item.id, !selfService);
+          }} />
         </div>
         <div className="Place__choice-item">
           <h3>На месте</h3>
-          <Checkbox checked={!selfService} onToggle={() => setSelfService(!setSelfService)} />
+          <Checkbox checked={!selfService} onToggle={() => {
+            setSelfService(!setSelfService)
+            onOptionsChange('selfService', item.id, !selfService);
+          }} />
         </div>
       </div>
       <footer className="Place__footer">
@@ -154,6 +177,10 @@ const Basket = ({ match: { params: { areaId, itemId }}, history, foodAreas, orde
       </footer>
     </div>
   );
+};
+
+Basket.defaultProps = {
+  onOptionsChange: () => {},
 };
 
 export default withRouter(Basket);

@@ -126,6 +126,7 @@ const foodsMap = FOOD_AREAS.reduce((result, area) => {
 
 const App = () => {
 	const [ orderStatuses, setOrderStatuses ] = useState(JSON.parse((localStorage.getItem('orderStatuses') || 'null')) || {});
+	const [ orderOptions, setOrderOptions ] = useState(JSON.parse((localStorage.getItem('orderOptions') || 'null')) || {});
 	const [ order, setOrder ] = useState(JSON.parse((localStorage.getItem('orders') || 'null')) || {});
 
 	return (
@@ -152,6 +153,19 @@ const App = () => {
 					<Basket
 						foodAreas={FOOD_AREAS}
 						order={order}
+						orderOptions={orderOptions}
+						onOptionsChange={(id, itemId, value) => {
+							const updatedOrderOptions = {...orderOptions};
+
+							if (!(itemId in updatedOrderOptions)) {
+								updatedOrderOptions[itemId] = {};
+							}
+
+							updatedOrderOptions[itemId][id] = value;
+
+							localStorage.setItem('orderOptions', JSON.stringify(updatedOrderOptions));
+							setOrderOptions(updatedOrderOptions);
+						}}
 					/>
 				</Route>
 				<Route
