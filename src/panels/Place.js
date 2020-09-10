@@ -101,8 +101,22 @@ const Place = ({ item, order, onIncrementPosition, onDecrementPosition, area }) 
         )))}
       </ul>
       <footer className="Place__footer">
-        <Link to={`/basket/${area.id}/${item.id}`} className="Place__order">
-          Оформить заказ ({price})
+        <Link
+          to={
+            item.foods.some((food) => food.id in order && order[food.id].count > 0)
+            ? `/basket/${area.id}/${item.id}`
+            : '#'
+          }
+          className={ 
+            item.foods.some((food) => food.id in order && order[food.id].count > 0) 
+            ? 'Place__order' 
+            : 'Place__order--disabled'
+          }
+        >
+          {
+            item.foods.some((food) => food.id in order && order[food.id].count > 0) ?
+            `Оформить заказ ${price}` : 'Добавьте в корзину хотя бы один товар'
+          }
         </Link>
       </footer>
     </div>

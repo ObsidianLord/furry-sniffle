@@ -8,7 +8,7 @@ import edit from '../img/edit.svg';
 import './place.css';
 
 
-const Basket = ({ match: { params: { areaId, itemId }}, foodAreas, order }) => {
+const Basket = ({ match: { params: { areaId, itemId }}, history, foodAreas, order }) => {
   const [ faster, setFaster ] = useState(true);
   const [ time, setTime ] = useState('');
   const [ selfService, setSelfService ] = useState(false);
